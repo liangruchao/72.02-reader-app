@@ -1,0 +1,46 @@
+# Test Configuration
+spring:
+  application:
+    name: readerapp-test
+
+  # H2 in-memory database for testing
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  # JPA configuration
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+
+  # Flyway disabled for tests - use hibernate ddl-auto instead
+  flyway:
+    enabled: false
+
+  # Mail disabled for tests
+  mail:
+    host: localhost
+    port: 25
+    test-connection: false
+
+# JWT Configuration
+app:
+  jwt:
+    secret: test-secret-key-for-testing-purposes-must-be-long-enough-for-hs512-algorithm
+    expiration: 86400000  # 24 hours
+    refresh-expiration: 604800000  # 7 days
+
+# Logging
+logging:
+  level:
+    com.readerapp: INFO
+    org.springframework.security: WARN
+    org.hibernate.SQL: WARN
+

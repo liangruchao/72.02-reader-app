@@ -369,19 +369,83 @@ INFO  com.readerapp.controller.AuthController - Get current user info request fo
 
 ## 单元测试
 
-（待实现）
+### ✅ 已完成
+- **测试框架配置**：已配置JUnit 5、Spring Boot Test、AssertJ
+- **测试基础设施**：H2内存数据库、测试配置文件
+- **测试用例编写**：AuthService集成测试（11个测试用例）
 
-运行单元测试：
+### ⚠️ 已知问题
+
+#### Java 23 兼容性问题
+
+当前环境使用Java 23，导致以下测试框架无法正常运行：
+
+**问题描述**：
+- Mockito 5.14.2 的 ByteBuddy 无法识别 Java 23
+- 错误信息：`Unknown Java version: 0`
+- 影响范围：所有使用 `@Mock`、`@MockBean` 的测试
+
+**解决方案选项**：
+
+1. **推荐方案：降级到 Java 17 或 21**
+   ```bash
+   # 使用 jenv 或 sdkman 切换 Java 版本
+   jenv local 17
+   # 或
+   sdk use java 21.0.1-tem
+   ```
+
+2. **临时方案：使用集成测试而非单元测试**
+   - 当前的 `AuthServiceTest` 是集成测试
+   - 使用真实的数据库和Spring beans
+   - 不依赖Mockito
+   - 可以在Java 17/21上运行
+
+3. **等待方案：等待 Mockito 支持更新**
+   - 关注 Mockito 发布说明
+   - 升级到支持 Java 23 的版本
+
+### 测试用例覆盖
+
+#### AuthServiceTest (集成测试)
+
+| 测试用例 | 状态 | 说明 |
+|---------|------|------|
+| register_Success | ✅ 已编写 | 成功注册新用户 |
+| register_EmailAlreadyExists | ✅ 已编写 | 邮箱已存在时抛出异常 |
+| register_UsernameAlreadyExists | ✅ 已编写 | 用户名已存在时抛出异常 |
+| login_Success | ✅ 已编写 | 成功登录 |
+| login_WrongPassword | ✅ 已编写 | 密码错误时抛出异常 |
+| login_UserNotFound | ✅ 已编写 | 用户不存在时抛出异常 |
+| refreshToken_Success | ✅ 已编写 | 成功刷新token |
+| refreshToken_InvalidToken | ✅ 已编写 | 无效token时抛出异常 |
+| refreshToken_InvalidTokenType | ✅ 已编写 | token类型错误时抛出异常 |
+| getCurrentUser_Success | ✅ 已编写 | 成功获取用户信息 |
+| getCurrentUser_UserNotFound | ✅ 已编写 | 用户不存在时抛出异常 |
+
+### 运行测试
+
+#### 使用 Java 17/21（推荐）
 
 ```bash
-cd backend
+# 切换到 Java 17
+jenv local 17
+
+# 运行所有测试
 mvn test
+
+# 运行特定测试类
+mvn test -Dtest=AuthServiceTest
+
+# 运行特定测试方法
+mvn test -Dtest=AuthServiceTest#register_Success
 ```
 
-测试覆盖率：
+#### 测试覆盖率报告
 
 ```bash
 mvn test jacoco:report
+open target/site/jacoco/index.html
 ```
 
 ---

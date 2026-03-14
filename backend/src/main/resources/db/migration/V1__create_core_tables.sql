@@ -81,6 +81,28 @@ CREATE TABLE role_permissions (
 -- 2. B2B2C 多租户表
 -- ====================================================================
 
+-- License 表 (先创建，因为 platforms 需要引用它)
+CREATE TABLE licenses (
+    id VARCHAR(36) PRIMARY KEY,
+    platform_id VARCHAR(36) DEFAULT NULL,
+    license_key VARCHAR(500) NOT NULL UNIQUE,
+    type ENUM('TRIAL', 'SUBSCRIPTION', 'LIFETIME') NOT NULL DEFAULT 'SUBSCRIPTION',
+    tier ENUM('FREE', 'BASIC', 'PRO', 'ENTERPRISE') NOT NULL DEFAULT 'BASIC',
+    max_users INT DEFAULT NULL,
+    max_articles BIGINT DEFAULT NULL,
+    max_storage BIGINT DEFAULT NULL,
+    start_date TIMESTAMP NOT NULL,
+    end_date TIMESTAMP NOT NULL,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    auto_renew BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_platform_id (platform_id),
+    INDEX idx_license_key (license_key),
+    INDEX idx_is_active (is_active),
+    INDEX idx_end_date (end_date)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='License表';
+
 -- 平台表
 CREATE TABLE platforms (
     id VARCHAR(36) PRIMARY KEY,
@@ -95,33 +117,18 @@ CREATE TABLE platforms (
     user_count INT NOT NULL DEFAULT 0,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (license_id) REFERENCES licenses(id) ON DELETE SET NULL,
     INDEX idx_is_active (is_active),
     INDEX idx_license_id (license_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='平台表';
 
--- License 表
-CREATE TABLE licenses (
-    id VARCHAR(36) PRIMARY KEY,
-    platform_id VARCHAR(36) NOT NULL,
-    license_key VARCHAR(500) NOT NULL UNIQUE,
-    type ENUM('TRIAL', 'SUBSCRIPTION', 'LIFETIME') NOT NULL DEFAULT 'SUBSCRIPTION',
-    tier ENUM('FREE', 'BASIC', 'PRO', 'ENTERPRISE') NOT NULL DEFAULT 'BASIC',
-    max_users INT DEFAULT NULL,
-    max_articles BIGINT DEFAULT NULL,
-    max_storage BIGINT DEFAULT NULL,
-    start_date TIMESTAMP NOT NULL,
-    end_date TIMESTAMP NOT NULL,
-    is_active BOOLEAN NOT NULL DEFAULT TRUE,
-    auto_renew BOOLEAN NOT NULL DEFAULT FALSE,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (platform_id) REFERENCES platforms(id) ON DELETE CASCADE,
-    INDEX idx_platform_id (platform_id),
-    INDEX idx_license_key (license_key),
-    INDEX idx_is_active (is_active),
-    INDEX idx_end_date (end_date)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='License表';
+-- 添加外键约束 (在两个表都创建后)
+ALTER TABLE licenses
+    ADD CONSTRAINT fk_licenses_platform
+    FOREIGN KEY (platform_id) REFERENCES platforms(id) ON DELETE CASCADE;
+
+ALTER TABLE platforms
+    ADD CONSTRAINT fk_platforms_license
+    FOREIGN KEY (license_id) REFERENCES licenses(id) ON DELETE SET NULL;
 
 -- License 功能集合表
 CREATE TABLE license_features (

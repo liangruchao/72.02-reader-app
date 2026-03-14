@@ -109,7 +109,7 @@ CREATE INDEX idx_social_accounts_user_provider ON social_accounts(user_id, provi
 CREATE INDEX idx_platforms_user_count ON platforms(user_count);
 
 -- License 使用统计
-CREATE INDEX idx_licenses_usage ON licenses(platform_id, max_users, user_count);
+CREATE INDEX idx_licenses_platform_tier ON licenses(platform_id, tier);
 
 -- ====================================================================
 -- 索引说明

@@ -227,7 +227,7 @@ CREATE TABLE rss_feeds (
     user_id VARCHAR(36) NOT NULL,
     platform_id VARCHAR(36) DEFAULT NULL,
     title VARCHAR(255) NOT NULL,
-    url VARCHAR(2048) NOT NULL,
+    url VARCHAR(500) NOT NULL,
     description TEXT DEFAULT NULL,
     favicon_url VARCHAR(500) DEFAULT NULL,
     update_frequency INT DEFAULT 3600 COMMENT '更新频率（秒）',

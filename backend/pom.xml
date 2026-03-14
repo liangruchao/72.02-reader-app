@@ -25,6 +25,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Dependencies versions -->
+        <lombok.version>1.18.30</lombok.version>
         <jjwt.version>0.12.3</jjwt.version>
         <commons-codec.version>1.16.0</commons-codec.version>
         <poi.version>5.2.5</poi.version>
@@ -200,6 +201,13 @@
                 <configuration>
                     <source>17</source>
                     <target>17</target>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
 

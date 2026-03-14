@@ -43,6 +43,16 @@ public class ApiResponse<T> {
     }
 
     /**
+     * Create success response with message only (no data)
+     */
+    public static ApiResponse<Void> success(String message) {
+        return ApiResponse.<Void>builder()
+                .success(true)
+                .message(message)
+                .build();
+    }
+
+    /**
      * Create error response
      */
     public static <T> ApiResponse<T> error(String error) {

@@ -30,12 +30,13 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
         User user;
 
-        // Try to find by ID first (for JWT authentication)
-        try {
+        // Check if username looks like a UUID (for JWT authentication)
+        if (isValidUuid(username)) {
+            // Try to find by ID (for JWT authentication)
             user = userRepository.findByIdWithRoles(username)
                     .orElseThrow(() -> new UsernameNotFoundException("User not found with id: " + username));
-        } catch (IllegalArgumentException e) {
-            // If not a valid UUID, try to find by email (for initial login)
+        } else {
+            // Try to find by email (for initial login)
             user = userRepository.findByEmailWithRoles(username)
                     .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + username));
         }
@@ -47,6 +48,21 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         log.debug("Loading user: {}", user.getEmail());
 
         return UserPrincipal.create(user);
+    }
+
+    /**
+     * Check if the string is a valid UUID format
+     */
+    private boolean isValidUuid(String uuid) {
+        if (uuid == null) {
+            return false;
+        }
+        try {
+            java.util.UUID.fromString(uuid);
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
     }
 
     /**
